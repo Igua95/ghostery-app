@@ -9,7 +9,6 @@ const HomePage: React.FC = () => {
     const handleApiCall = async () => {
         setLoading(true);
         try {
-            // Test the REST API first
             const response = await fetch('http://localhost:4000/api/health');
             const data = await response.json();
             setResult(`API Response: ${JSON.stringify(data)}`);
