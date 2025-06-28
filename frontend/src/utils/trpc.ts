@@ -1,7 +1,13 @@
 import { createTRPCReact } from '@trpc/react-query';
-
-// For now, we'll use a simple type definition
-// In a real app, you'd import this from a shared package
-type AppRouter = any;
+import { httpBatchLink } from '@trpc/client';
+import type { AppRouter } from '../../../backend/src/trpc/router';
 
 export const trpc = createTRPCReact<AppRouter>();
+
+export const trpcClient = trpc.createClient({
+  links: [
+    httpBatchLink({
+      url: 'http://localhost:4000/trpc',
+    }),
+  ],
+});

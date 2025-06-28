@@ -1,24 +1,10 @@
 import React, { useState } from 'react';
 import { Button } from '../components/index';
+import { useGetExample } from '../hooks';
 
 const HomePage: React.FC = () => {
     const [inputValue, setInputValue] = useState('World');
-    const [result, setResult] = useState<string>('');
-    const [loading, setLoading] = useState(false);
-
-    const handleApiCall = async () => {
-        setLoading(true);
-        try {
-            // Test the REST API first
-            const response = await fetch('http://localhost:4000/api/health');
-            const data = await response.json();
-            setResult(`API Response: ${JSON.stringify(data)}`);
-        } catch (error) {
-            setResult(`Error: ${error}`);
-        } finally {
-            setLoading(false);
-        }
-    };
+    const { data, isLoading, error } = useGetExample(inputValue);
 
     return (
         <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-8">
@@ -35,12 +21,16 @@ const HomePage: React.FC = () => {
                         className="w-full p-2 border border-gray-300 rounded mb-2"
                         placeholder="Enter your name"
                     />
-                    <Button onClick={handleApiCall} label={loading ? "Loading..." : "Test API"} />
-                    {result && (
+                    {isLoading && <p>Loading...</p>}
+                    {error && <p className="text-red-500">Error: {error.message}</p>}
+                    {data && (
                         <div className="mt-2 p-2 bg-gray-100 rounded">
-                            <p className="text-sm text-gray-700">{result}</p>
+                            <p className="text-sm text-gray-700">{data}</p>
                         </div>
                     )}
+                    <div className="mt-2 p-2 bg-blue-100 rounded text-xs">
+                        <p>Debug: Loading: {isLoading.toString()}, Error: {error?.message || 'none'}, Data: {data || 'none'}</p>
+                    </div>
                 </div>
             </div>
         </div>

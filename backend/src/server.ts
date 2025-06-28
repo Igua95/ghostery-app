@@ -15,10 +15,8 @@ const PORT = process.env.PORT || 4000;
 
 app.use(cors());
 
-// REST API routes
 app.use('/api', router);
 
-// tRPC API routes
 app.use('/trpc', createExpressMiddleware({
   router: appRouter,
   createContext,

@@ -14,7 +14,6 @@ export const appRouter = t.router({
       name: z.string(),
     }))
     .mutation(({ input }) => {
-      // Logic to create an example
       return { success: true, name: input.name };
     }),
 });
