@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { Card } from '../components/ui/Card';
+import { trpc } from '../utils/trpc';
 
 interface LoginPageProps {
   onLogin: (username: string) => void;
@@ -11,7 +12,15 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
+
+  const loginMutation = trpc.auth.login.useMutation({
+    onSuccess: (data) => {
+      onLogin(data.username);
+    },
+    onError: (error) => {
+      setError(error.message);
+    },
+  });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -21,16 +30,7 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
     }
     
     setError('');
-    setLoading(true);
-    
-    setTimeout(() => {
-      if (password === 'password') {
-        onLogin(username);
-      } else {
-        setError('Invalid username or password');
-      }
-      setLoading(false);
-    }, 1000);
+    loginMutation.mutate({ username, password });
   };
 
   return (
@@ -49,7 +49,7 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
                 placeholder="Username"
                 value={username}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => setUsername(e.target.value)}
-                disabled={loading}
+                disabled={loginMutation.isPending}
               />
             </div>
             
@@ -59,7 +59,7 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
                 placeholder="Password"
                 value={password}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
-                disabled={loading}
+                disabled={loginMutation.isPending}
               />
             </div>
             
@@ -71,16 +71,12 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
             
             <Button
               type="submit"
-              disabled={loading}
+              disabled={loginMutation.isPending}
               className="w-full"
             >
-              {loading ? 'Signing in...' : 'Sign in'}
+              {loginMutation.isPending ? 'Signing in...' : 'Sign in'}
             </Button>
           </form>
-          
-          <div className="text-center text-sm text-secondary">
-            Use any username with password: "password"
-          </div>
         </div>
       </Card>
     </div>

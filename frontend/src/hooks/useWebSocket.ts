@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 
 interface WebSocketMessage {
   type: string;
@@ -14,6 +14,12 @@ export function useWebSocket({ username, onMessage }: UseWebSocketProps) {
   const [isConnected, setIsConnected] = useState(false);
   const ws = useRef<WebSocket | null>(null);
   const reconnectTimeoutRef = useRef<number>();
+  const onMessageRef = useRef(onMessage);
+
+  // Update the ref when onMessage changes
+  useEffect(() => {
+    onMessageRef.current = onMessage;
+  }, [onMessage]);
 
   useEffect(() => {
     const connectWebSocket = () => {
@@ -36,7 +42,7 @@ export function useWebSocket({ username, onMessage }: UseWebSocketProps) {
             const message = JSON.parse(event.data);
             console.log('Received message:', message);
             if (message.type === 'new_message') {
-              onMessage(message);
+              onMessageRef.current(message);
             }
           } catch (error) {
             console.error('Error parsing message:', error);
@@ -73,7 +79,7 @@ export function useWebSocket({ username, onMessage }: UseWebSocketProps) {
         ws.current.close();
       }
     };
-  }, [username, onMessage]);
+  }, [username]); // Remove onMessage from dependencies
 
   const sendMessage = (message: WebSocketMessage) => {
     if (ws.current && ws.current.readyState === WebSocket.OPEN) {

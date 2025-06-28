@@ -11,11 +11,12 @@ const authRouter = t.router({
       username: z.string(),
       password: z.string(),
     }))
-    .mutation(({ input }) => {
-      if (input.password === 'password') {
-        return { success: true, username: input.username };
+    .mutation(async ({ input }) => {
+      const user = await userService.validatePassword(input.username, input.password);
+      if (!user) {
+        throw new Error('Invalid credentials');
       }
-      throw new Error('Invalid credentials');
+      return { success: true, username: user.username, userId: user.id };
     }),
 });
 

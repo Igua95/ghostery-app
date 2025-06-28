@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Navbar } from '../components/layout/Navbar';
 import { Sidebar } from '../components/layout/Sidebar';
 import { ChatWindow } from '../components/chat/ChatWindow';
@@ -50,30 +50,32 @@ export default function ChatPage({ user, onLogout }: ChatPageProps) {
     }
   ]);
 
+  const handleWebSocketMessage = useCallback((message: any) => {
+    const senderId = message.from;
+    const threadId = threads.find(t => t.name === senderId)?.id;
+    
+    if (threadId) {
+      setThreadMessages(prev => ({
+        ...prev,
+        [threadId]: [...(prev[threadId] || []), {
+          id: Date.now().toString(),
+          from: message.from,
+          content: message.content,
+          timestamp: new Date().toISOString()
+        }]
+      }));
+      
+      setThreads(prev => prev.map(thread => 
+        thread.id === threadId 
+          ? { ...thread, lastMessage: message.content, timestamp: 'now' }
+          : thread
+      ));
+    }
+  }, [threads]);
+
   const { sendMessage, isConnected } = useWebSocket({
     username: user,
-    onMessage: (message: any) => {
-      const senderId = message.from;
-      const threadId = threads.find(t => t.name === senderId)?.id;
-      
-      if (threadId) {
-        setThreadMessages(prev => ({
-          ...prev,
-          [threadId]: [...(prev[threadId] || []), {
-            id: Date.now().toString(),
-            from: message.from,
-            content: message.content,
-            timestamp: new Date().toISOString()
-          }]
-        }));
-        
-        setThreads(prev => prev.map(thread => 
-          thread.id === threadId 
-            ? { ...thread, lastMessage: message.content, timestamp: 'now' }
-            : thread
-        ));
-      }
-    }
+    onMessage: handleWebSocketMessage
   });
 
   useEffect(() => {
