@@ -1,19 +1,40 @@
 import React, { useState } from 'react';
 import { Button } from '../components/index';
-import { useGetExample } from '../hooks';
+import { useGetExample, useGetUsers } from '../hooks';
 
 const HomePage: React.FC = () => {
     const [inputValue, setInputValue] = useState('World');
     const { data, isLoading, error } = useGetExample(inputValue);
+    const { data: users, isLoading: usersLoading, error: usersError } = useGetUsers();
 
     return (
         <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-8">
-            <h1 className="text-4xl font-bold text-blue-600 mb-8">Welcome to the Full Stack Application</h1>
-            <p className="text-lg text-gray-700 mb-8">This app demonstrates type-safe communication between React and Node.js</p>
+            <h1 className="text-4xl font-bold text-blue-600 mb-8">Chat App</h1>
             
-            <div className="bg-white rounded-lg shadow-md p-6 w-full max-w-md space-y-4">
-                <div>
-                    <h2 className="text-xl font-semibold mb-2">Test Backend Connection</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-4xl">
+                <div className="bg-white rounded-lg shadow-md p-6">
+                    <h2 className="text-xl font-semibold mb-4">Users</h2>
+                    {usersLoading && <p>Loading users...</p>}
+                    {usersError && <p className="text-red-500">Error: {usersError.message}</p>}
+                    {users && (
+                        <div className="space-y-2">
+                            {users.map((user) => (
+                                <div key={user.id} className="p-3 bg-gray-50 rounded border">
+                                    <div className="flex justify-between items-center">
+                                        <span className="font-medium">{user.username}</span>
+                                        <span className="text-sm text-gray-500">ID: {user.id}</span>
+                                    </div>
+                                    <div className="text-xs text-gray-400 mt-1">
+                                        Joined: {new Date(user.createdAt).toLocaleDateString()}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+
+                <div className="bg-white rounded-lg shadow-md p-6">
+                    <h2 className="text-xl font-semibold mb-4">Test Backend Connection</h2>
                     <input
                         type="text"
                         value={inputValue}
@@ -28,9 +49,6 @@ const HomePage: React.FC = () => {
                             <p className="text-sm text-gray-700">{data}</p>
                         </div>
                     )}
-                    <div className="mt-2 p-2 bg-blue-100 rounded text-xs">
-                        <p>Debug: Loading: {isLoading.toString()}, Error: {error?.message || 'none'}, Data: {data || 'none'}</p>
-                    </div>
                 </div>
             </div>
         </div>
