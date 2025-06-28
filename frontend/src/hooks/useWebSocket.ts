@@ -16,7 +16,6 @@ export function useWebSocket({ username, onMessage }: UseWebSocketProps) {
   const reconnectTimeoutRef = useRef<number>();
   const onMessageRef = useRef(onMessage);
 
-  // Update the ref when onMessage changes
   useEffect(() => {
     onMessageRef.current = onMessage;
   }, [onMessage]);
@@ -79,7 +78,7 @@ export function useWebSocket({ username, onMessage }: UseWebSocketProps) {
         ws.current.close();
       }
     };
-  }, [username]); // Remove onMessage from dependencies
+  }, [username]);
 
   const sendMessage = (message: WebSocketMessage) => {
     if (ws.current && ws.current.readyState === WebSocket.OPEN) {

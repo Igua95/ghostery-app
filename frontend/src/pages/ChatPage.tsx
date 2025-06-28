@@ -4,9 +4,15 @@ import { Sidebar } from '../components/layout/Sidebar';
 import { ChatWindow } from '../components/chat/ChatWindow';
 import { NewChatModal } from '../components/chat/NewChatModal';
 import { useWebSocket } from '../hooks/useWebSocket';
+import { useGetUserThreads, useGetThreadMessages } from '../hooks/useMessages';
+
+interface User {
+  username: string;
+  userId: number;
+}
 
 interface ChatPageProps {
-  user: string;
+  user: User;
   onLogout: () => void;
 }
 
@@ -27,54 +33,27 @@ interface Message {
 export default function ChatPage({ user, onLogout }: ChatPageProps) {
   const [selectedThread, setSelectedThread] = useState<Thread | null>(null);
   const [showNewChatModal, setShowNewChatModal] = useState(false);
-  const [threadMessages, setThreadMessages] = useState<Record<string, Message[]>>({});
   
-  const [threads, setThreads] = useState<Thread[]>([
-    {
-      id: '1',
-      name: 'John Doe',
-      lastMessage: 'Hey, how are you?',
-      timestamp: '2 min ago'
-    },
-    {
-      id: '2',
-      name: 'Jane Smith',
-      lastMessage: 'See you tomorrow!',
-      timestamp: '1 hour ago'
-    },
-    {
-      id: '3',
-      name: 'Bob Wilson',
-      lastMessage: 'Thanks for the help',
-      timestamp: '3 hours ago'
-    }
-  ]);
+  const { data: threads = [], refetch: refetchThreads } = useGetUserThreads(user.userId);
+  
+  const { data: messages = [], refetch: refetchMessages } = useGetThreadMessages(
+    selectedThread ? parseInt(selectedThread.id) : null,
+    user.userId
+  );
 
   const handleWebSocketMessage = useCallback((message: any) => {
-    const senderId = message.from;
-    const threadId = threads.find(t => t.name === senderId)?.id;
+    refetchThreads();
     
-    if (threadId) {
-      setThreadMessages(prev => ({
-        ...prev,
-        [threadId]: [...(prev[threadId] || []), {
-          id: Date.now().toString(),
-          from: message.from,
-          content: message.content,
-          timestamp: new Date().toISOString()
-        }]
-      }));
-      
-      setThreads(prev => prev.map(thread => 
-        thread.id === threadId 
-          ? { ...thread, lastMessage: message.content, timestamp: 'now' }
-          : thread
-      ));
+    if (selectedThread) {
+      const senderId = message.from;
+      if (selectedThread.name === senderId) {
+        refetchMessages();
+      }
     }
-  }, [threads]);
+  }, [selectedThread, refetchThreads, refetchMessages]);
 
   const { sendMessage, isConnected } = useWebSocket({
-    username: user,
+    username: user.username,
     onMessage: handleWebSocketMessage
   });
 
@@ -82,34 +61,21 @@ export default function ChatPage({ user, onLogout }: ChatPageProps) {
     if (threads.length > 0 && !selectedThread) {
       setSelectedThread(threads[0]);
     }
-  }, [threads]);
+  }, [threads, selectedThread]);
 
   const handleSendMessage = (content: string) => {
     if (selectedThread) {
       sendMessage({
         type: 'send_message',
-        sender: user,
+        sender: user.username,
         receiver: selectedThread.name,
         content
       });
       
-      const newMessage: Message = {
-        id: Date.now().toString(),
-        from: user,
-        content,
-        timestamp: new Date().toISOString()
-      };
-
-      setThreadMessages(prev => ({
-        ...prev,
-        [selectedThread.id]: [...(prev[selectedThread.id] || []), newMessage]
-      }));
-
-      setThreads(prev => prev.map(thread => 
-        thread.id === selectedThread.id 
-          ? { ...thread, lastMessage: content, timestamp: 'now' }
-          : thread
-      ));
+      setTimeout(() => {
+        refetchMessages();
+        refetchThreads();
+      }, 100);
     }
   };
 
@@ -118,6 +84,10 @@ export default function ChatPage({ user, onLogout }: ChatPageProps) {
   };
 
   const handleNewChat = (username: string) => {
+    if (username.toLowerCase() === user.username.toLowerCase()) {
+      return;
+    }
+    
     const existingThread = threads.find(t => t.name.toLowerCase() === username.toLowerCase());
     
     if (existingThread) {
@@ -130,18 +100,15 @@ export default function ChatPage({ user, onLogout }: ChatPageProps) {
         timestamp: 'now'
       };
       
-      setThreads(prev => [newThread, ...prev]);
       setSelectedThread(newThread);
     }
     
     setShowNewChatModal(false);
   };
 
-  const currentMessages = selectedThread ? threadMessages[selectedThread.id] || [] : [];
-
   return (
     <div className="h-screen bg-deep flex flex-col">
-      <Navbar user={user} onLogout={onLogout} />
+      <Navbar user={user.username} onLogout={onLogout} />
       
       <div className="flex flex-1 overflow-hidden">
         <Sidebar
@@ -155,8 +122,8 @@ export default function ChatPage({ user, onLogout }: ChatPageProps) {
           {selectedThread ? (
             <ChatWindow
               thread={selectedThread}
-              messages={currentMessages}
-              currentUser={user}
+              messages={messages}
+              currentUser={user.username}
               onSendMessage={handleSendMessage}
               isConnected={isConnected}
             />
@@ -172,6 +139,7 @@ export default function ChatPage({ user, onLogout }: ChatPageProps) {
         <NewChatModal
           onClose={() => setShowNewChatModal(false)}
           onStartChat={handleNewChat}
+          currentUserId={user.userId}
         />
       )}
     </div>
