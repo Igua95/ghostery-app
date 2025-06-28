@@ -11,6 +11,10 @@ export const setupWebSocket = (server: Server) => {
       try {
         const message = JSON.parse(data.toString());
 
+
+        // TODO: This WebSocket implementation has no authentication
+        // It would be good to add a JWT token, retrieve the username from the token
+        // and store in the cache.
         if (message.type === 'auth') {
           clients.set(message.username, ws);
           console.log(`User ${message.username} connected`);
