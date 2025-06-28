@@ -4,8 +4,13 @@ import { Input } from '../components/ui/Input';
 import { Card } from '../components/ui/Card';
 import { trpc } from '../utils/trpc';
 
+interface User {
+  username: string;
+  userId: number;
+}
+
 interface LoginPageProps {
-  onLogin: (username: string) => void;
+  onLogin: (user: User) => void;
 }
 
 export default function LoginPage({ onLogin }: LoginPageProps) {
@@ -15,7 +20,7 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
 
   const loginMutation = trpc.auth.login.useMutation({
     onSuccess: (data) => {
-      onLogin(data.username);
+      onLogin({ username: data.username, userId: data.userId });
     },
     onError: (error) => {
       setError(error.message);

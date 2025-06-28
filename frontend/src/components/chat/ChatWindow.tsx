@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 
@@ -26,12 +26,39 @@ interface ChatWindowProps {
 
 export function ChatWindow({ thread, messages, currentUser, onSendMessage, isConnected }: ChatWindowProps) {
   const [newMessage, setNewMessage] = useState('');
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
+  const [shouldAutoScroll, setShouldAutoScroll] = useState(true);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  const handleScroll = () => {
+    if (messagesContainerRef.current) {
+      const { scrollTop, scrollHeight, clientHeight } = messagesContainerRef.current;
+      const isNearBottom = scrollTop + clientHeight >= scrollHeight - 100; // 100px threshold
+      setShouldAutoScroll(isNearBottom);
+    }
+  };
+
+  useEffect(() => {
+    if (shouldAutoScroll) {
+      scrollToBottom();
+    }
+  }, [messages, shouldAutoScroll]);
+
+  useEffect(() => {
+    setShouldAutoScroll(true);
+    scrollToBottom();
+  }, [thread.id]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (newMessage.trim()) {
       onSendMessage(newMessage.trim());
       setNewMessage('');
+      setShouldAutoScroll(true);
     }
   };
 
@@ -53,7 +80,11 @@ export function ChatWindow({ thread, messages, currentUser, onSendMessage, isCon
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+      <div 
+        ref={messagesContainerRef}
+        className="flex-1 overflow-y-auto p-4 space-y-4 relative"
+        onScroll={handleScroll}
+      >
         {messages.map((message) => (
           <div
             key={message.id}
@@ -78,6 +109,24 @@ export function ChatWindow({ thread, messages, currentUser, onSendMessage, isCon
             </div>
           </div>
         ))}
+        {/* Invisible element to scroll to */}
+        <div ref={messagesEndRef} />
+        
+        {/* Scroll to bottom button */}
+        {!shouldAutoScroll && (
+          <div className="absolute bottom-20 right-6">
+            <Button
+              onClick={() => {
+                setShouldAutoScroll(true);
+                scrollToBottom();
+              }}
+              className="rounded-full w-10 h-10 p-0 shadow-lg"
+              variant="secondary"
+            >
+              ↓
+            </Button>
+          </div>
+        )}
       </div>
 
       <div className="p-4 border-t border-subtle">
