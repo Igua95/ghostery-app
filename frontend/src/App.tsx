@@ -1,21 +1,17 @@
-import React from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import HomePage from './pages/index';
-import { Header } from './components/index';
+import { useState } from 'react';
+import LoginPage from './pages/LoginPage';
+import ChatPage from './pages/ChatPage';
 
-const App: React.FC = () => {
+export default function App() {
+  const [user, setUser] = useState<string | null>(null);
+
   return (
-    <Router>
-      <div className="min-h-screen bg-gray-100">
-        <Header />
-        <main className="p-4">
-          <Routes>
-            <Route path="/" element={<HomePage />} />
-          </Routes>
-        </main>
-      </div>
-    </Router>
+    <div className="min-h-screen bg-deep text-primary">
+      {!user ? (
+        <LoginPage onLogin={setUser} />
+      ) : (
+        <ChatPage user={user} onLogout={() => setUser(null)} />
+      )}
+    </div>
   );
-};
-
-export default App;
+}
