@@ -12,7 +12,6 @@ export class MessageService {
   }
 
   async createMessageFromWebSocket(senderUsername: string, receiverUsername: string, content: string) {
-    // Get sender and receiver user data
     const sender = await this.userService.getUserByUsername(senderUsername);
     const receiver = await this.userService.getUserByUsername(receiverUsername);
 
@@ -20,10 +19,8 @@ export class MessageService {
       throw new Error('Sender or receiver not found');
     }
 
-    // Find or create thread between these two users
     const thread = await this.findOrCreateThread(sender.id, receiver.id);
 
-    // Create the message
     const message = await this.messagesRepository.create(thread.id, sender.id, content);
     
     return {

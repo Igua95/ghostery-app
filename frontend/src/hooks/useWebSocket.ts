@@ -78,7 +78,7 @@ export function useWebSocket({ username, onMessage }: UseWebSocketProps) {
         ws.current.close();
       }
     };
-  }, [username]); // Remove onMessage from dependencies
+  }, [username]);
 
   const sendMessage = (message: WebSocketMessage) => {
     if (ws.current && ws.current.readyState === WebSocket.OPEN) {
