@@ -5,10 +5,10 @@ const prisma = new PrismaClient();
 
 async function main() {
   const users = [
-    { username: 'alice', password: 'password' },
-    { username: 'bob', password: 'password' },
-    { username: 'charlie', password: 'password' },
-    { username: 'diana', password: 'password' }
+    { username: 'heisenberg', password: 'password' },
+    { username: 'jessepinkman', password: 'password' },
+    { username: 'saulgoodman', password: 'password' },
+    { username: 'mikeherman', password: 'password' }
   ];
 
   for (const user of users) {
