@@ -4,6 +4,8 @@ import { createExpressMiddleware } from '@trpc/server/adapters/express';
 import { appRouter } from './trpc/router.js';
 import router from './routes/index.js';
 import cors from 'cors';
+import { createServer } from 'http';
+import { setupWebSocket } from './ws/websocket.js';
 
 const createContext = ({ req, res }: { req: express.Request; res: express.Response }) => ({});
 type Context = inferAsyncReturnType<typeof createContext>;
@@ -11,6 +13,7 @@ type Context = inferAsyncReturnType<typeof createContext>;
 const t = initTRPC.context<Context>().create();
 
 const app = express();
+const server = createServer(app);
 const PORT = process.env.PORT || 4000;
 
 app.use(cors());
@@ -22,6 +25,9 @@ app.use('/trpc', createExpressMiddleware({
   createContext,
 }));
 
-app.listen(PORT, () => {
+setupWebSocket(server);
+
+server.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
+  console.log(`WebSocket server is running on ws://localhost:${PORT}`);
 });
