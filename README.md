@@ -55,6 +55,17 @@ After running the setup, the application will be available at:
 - **Backend**: `http://localhost:4000` - Node.js API with tRPC
 - **Database**: `localhost:5432` - PostgreSQL database
 
+#### Test Credentials
+
+For testing the application, you can use the following pre-seeded user accounts (see `backend/prisma/seed.ts` for reference):
+
+- **Username**: `heisenberg` | **Password**: `password`
+- **Username**: `jessepinkman` | **Password**: `password`
+- **Username**: `saulgoodman` | **Password**: `password`
+- **Username**: `mikeherman` | **Password**: `password`
+
+These test users are automatically created when the database is seeded during the setup process.
+
 ### Available Scripts
 
 - `./run-project.sh` - Complete setup and startup (recommended for first run)
