@@ -18,10 +18,6 @@ ghostery-app
 │   ├── package.json  # Backend dependencies and scripts
 │   ├── tsconfig.json # TypeScript configuration for backend
 │   └── Dockerfile    # Dockerfile for backend
-├── shared            # Shared types and interfaces
-│   ├── src          # Source files for shared code
-│   ├── package.json  # Shared library dependencies
-│   └── tsconfig.json # TypeScript configuration for shared
 ├── docker-compose.yml # Docker Compose configuration
 ├── build.sh         # Script to build and run the application
 └── README.md        # Project documentation
