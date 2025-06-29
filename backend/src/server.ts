@@ -18,6 +18,11 @@ const PORT = process.env.PORT || 4000;
 
 app.use(cors());
 
+// Health check endpoint
+app.get('/', (req, res) => {
+  res.status(200).json({ status: 'ok', message: 'Ghostery App Backend is running' });
+});
+
 app.use('/api', router);
 
 app.use('/trpc', createExpressMiddleware({

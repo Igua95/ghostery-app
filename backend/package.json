@@ -10,7 +10,7 @@
     "test": "jest",
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
-    "db:seed": "ts-node --esm prisma/seed.ts"
+    "db:seed": "node --loader ts-node/esm prisma/seed.ts"
   },
   "dependencies": {
     "@prisma/client": "^5.0.0",
