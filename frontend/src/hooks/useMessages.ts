@@ -7,7 +7,7 @@ export const useGetUserThreads = (userId: number | null) => {
     { userId: userId! },
     {
       enabled: userId !== null,
-      staleTime: 5 * MINUTES, // 5 minutes
+      staleTime: 5 * MINUTES,
     }
   );
 };
@@ -17,7 +17,7 @@ export const useGetThreadMessages = (threadId: number | null, userId: number | n
     { threadId: threadId!, userId: userId! },
     {
       enabled: threadId !== null && userId !== null,
-      staleTime: 1 * MINUTES, // 1 minute
+      staleTime: 1 * MINUTES,
     }
   );
 };
@@ -27,7 +27,7 @@ export const useCheckUserExists = (username: string | null, currentUserId?: numb
     { username: username!, currentUserId },
     {
       enabled: username !== null && username.length > 0,
-      staleTime: 5 * MINUTES, // 5 minutes
+      staleTime: 5 * MINUTES,
     }
   );
 };

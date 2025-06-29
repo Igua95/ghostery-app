@@ -4,8 +4,9 @@
   "private": true,
   "scripts": {
     "build": "docker-compose up --build",
-    "start": "docker-compose up",
-    "stop": "docker-compose down"
+    "start": "docker-compose up -d",
+    "stop": "docker-compose down",
+    "setup": "./run-project.sh"
   },
   "dependencies": {
     "typescript": "^4.5.4",

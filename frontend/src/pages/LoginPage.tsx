@@ -39,11 +39,12 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen p-4">
+    <div className="flex flex-col items-center justify-center min-h-screen p-4">
+      <h1 className="text-4xl font-display font-bold text-accent mb-8">Ghostery Chat</h1>
       <Card className="w-full max-w-md">
         <div className="space-y-6">
           <div className="space-y-2 text-center">
-            <h1 className="text-2xl font-display font-bold">Welcome Back</h1>
+            <h2 className="text-2xl font-display font-bold">Welcome Back</h2>
             <p className="text-secondary">Sign in to your account</p>
           </div>
           

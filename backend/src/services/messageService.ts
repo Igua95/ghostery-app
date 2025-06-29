@@ -69,7 +69,6 @@ export class MessageService {
       }
     });
 
-    // Transform threads to include other participant info and last message
     return threads.map(thread => {
       const otherMember = thread.members.find(member => member.userId !== userId);
       const lastMessage = thread.messages[0];
@@ -84,7 +83,6 @@ export class MessageService {
   }
 
   async getThreadMessages(threadId: number, userId: number) {
-    // Verify user is a member of this thread
     const threadMember = await prisma.threadMember.findUnique({
       where: {
         threadId_userId: {
@@ -109,7 +107,6 @@ export class MessageService {
   }
 
   private async findOrCreateThread(userId1: number, userId2: number) {
-    // Find existing thread between these two users
     const existingThread = await prisma.thread.findFirst({
       where: {
         AND: [
@@ -141,7 +138,6 @@ export class MessageService {
       return existingThread;
     }
 
-    // Create new thread
     const newThread = await prisma.thread.create({
       data: {
         isGroup: false,

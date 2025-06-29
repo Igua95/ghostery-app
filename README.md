@@ -1,31 +1,6 @@
 # Ghostery Application
 
-This project is a ghostery application built with React, TypeScript, Tailwind CSS for the frontend, and Node.js with tRPC for the backend. The application is containerized using Docker and orchestrated with Docker Compose.
-
-## Project Structure
-
-```
-ghostery-app
-├── frontend          # Frontend application
-│   ├── src          # Source files for the frontend
-│   ├── package.json  # Frontend dependencies and scripts
-│   ├── tsconfig.json # TypeScript configuration for frontend
-│   ├── tailwind.config.js # Tailwind CSS configuration
-│   ├── vite.config.ts # Vite configuration for building
-│   └── Dockerfile    # Dockerfile for frontend
-├── backend           # Backend application
-│   ├── src          # Source files for the backend
-│   ├── package.json  # Backend dependencies and scripts
-│   ├── tsconfig.json # TypeScript configuration for backend
-│   └── Dockerfile    # Dockerfile for backend
-├── shared            # Shared types and interfaces
-│   ├── src          # Source files for shared code
-│   ├── package.json  # Shared library dependencies
-│   └── tsconfig.json # TypeScript configuration for shared
-├── docker-compose.yml # Docker Compose configuration
-├── build.sh         # Script to build and run the application
-└── README.md        # Project documentation
-```
+This project is a real-time chat application called Ghostery built with React, TypeScript, Tailwind CSS for the frontend, and Node.js with tRPC for the backend. The application is containerized using Docker and orchestrated with Docker Compose, with PostgreSQL as the database.
 
 ## Getting Started
 
@@ -33,47 +8,130 @@ ghostery-app
 
 - Docker
 - Docker Compose
+- Node.js (for local development)
 
 ### Setup
 
 1. Clone the repository:
 
-   ```
-   git clone https://github.com/microsoft/vscode-remote-try-node.git
+   ```bash
+   git clone git@github.com:Igua95/ghostery-app.git
    cd ghostery-app
    ```
 
-2. Build and run the application using the provided script:
+2. **Complete Setup (Recommended)**: Use the comprehensive setup script that handles everything:
 
+   ```bash
+   ./run-project.sh
    ```
-   ./build.sh
+
+   This script will:
+   - Start the PostgreSQL database
+   - Build and start the backend service
+   - Run Prisma migrations and generate the client
+   - Seed the database with initial data
+   - Start the frontend application
+
+3. **Quick Start**: For a simpler startup (after initial setup):
+
+   ```bash
+   ./start.sh
+   ```
+
+4. **Using npm scripts** (alternative):
+
+   ```bash
+   npm run setup    # Complete setup (runs run-project.sh)
+   npm run build    # Build and start all services
+   npm run start    # Start services in detached mode
+   npm run stop     # Stop all services
    ```
 
 ### Usage
 
-- The frontend application will be available at `http://localhost:3000`.
-- The backend API will be available at `http://localhost:4000`.
+After running the setup, the application will be available at:
+
+- **Frontend**: `http://localhost:3000` - React application with Tailwind CSS
+- **Backend**: `http://localhost:4000` - Node.js API with tRPC
+- **Database**: `localhost:5432` - PostgreSQL database
+
+### Available Scripts
+
+- `./run-project.sh` - Complete setup and startup (recommended for first run)
+- `./start.sh` - Quick startup for subsequent runs
+- `./build.sh` - Simple Docker Compose build and start with logs
+- `docker-compose down` - Stop all services
+- `docker-compose logs -f [service_name]` - View logs for specific service
 
 ### Development
 
-- To develop the frontend, navigate to the `frontend` directory and run:
+For local development without Docker:
 
-  ```
-  npm install
-  npm run dev
-  ```
+#### Prerequisites for Local Development
 
-- To develop the backend, navigate to the `backend` directory and run:
+1. **Start PostgreSQL Database**: Even for local development, you'll need the PostgreSQL container running:
 
-  ```
-  npm install
-  npm run dev
-  ```
+```bash
+docker-compose up -d postgres
+```
 
-### Contributing
+2. **Environment Configuration**: Copy the environment example file in the backend:
 
-Contributions are welcome! Please open an issue or submit a pull request for any improvements or features.
+```bash
+cd backend
+cp .env.example .env
+```
 
-### License
+The `.env` file contains the database connection string and other configuration needed for local development.
 
-This project is licensed under the MIT License. See the LICENSE file for details.
+#### Frontend Development
+Navigate to the `frontend` directory and run:
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+#### Backend Development
+Navigate to the `backend` directory and run:
+
+```bash
+cd backend
+npm install
+npm run dev
+```
+
+**Note**: Make sure the PostgreSQL container is running before starting the backend for local development.
+
+#### Database Operations
+To work with the database:
+
+```bash
+# Run migrations
+docker-compose exec backend npx prisma migrate dev
+
+# Generate Prisma client
+docker-compose exec backend npx prisma generate
+
+# Seed the database
+docker-compose exec backend npm run db:seed
+
+# Open Prisma Studio
+docker-compose exec backend npx prisma studio
+```
+
+### Troubleshooting
+
+- If services fail to start, check logs: `docker-compose logs [service_name]`
+- To completely reset: `docker-compose down -v` (removes volumes)
+- Ensure ports 3000, 4000, and 5432 are available
+- For database connection issues, wait for PostgreSQL to fully initialize
+
+### Architecture
+
+- **Frontend**: React + TypeScript + Tailwind CSS + Vite
+- **Backend**: Node.js + TypeScript + tRPC + Prisma
+- **Database**: PostgreSQL
+- **WebSocket**: Real-time messaging support
+- **Containerization**: Docker + Docker Compose
